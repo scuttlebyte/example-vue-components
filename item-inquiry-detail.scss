@@ -1,0 +1,30 @@
+#item-detail {
+	.part-number {
+		margin-bottom: 0;
+	}
+
+	.locations {
+		.switch {
+			&.lock {
+				margin-left: 10px;
+			}
+		}
+	}
+
+	.details {
+		background-color: #F7F7F7;
+		margin: {
+			top: -20px;
+			bottom: 20px;
+			left: -0.75rem;
+			right: -0.75rem;
+		}
+		padding: {
+			top: 20px;
+			bottom: 20px;
+			left: 0.75rem;
+			right: 0.75rem;
+		}
+		border-bottom: 1px solid #ddd;
+	}
+}

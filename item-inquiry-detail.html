@@ -1,0 +1,193 @@
+<form id="item-detail" class="container">
+	<div class="row text-large part-number">
+		<div class="col s7">
+			Part Number:
+		</div>
+		<div class="col s5 right-align">
+			{{ item.id }}
+		</div>
+	</div>
+	<div v-if="item.serial" class="row text-medium part-serials">
+		<div class="col s4">
+			Serials:
+		</div>
+		<div class="col s8 right-align">
+			{{ item.serial }}
+		</div>
+	</div>
+	<div class="row separator item-description">
+		<p class="col s12">
+			{{ item.description }}
+		</p>
+	</div>
+	<div class="row text-large">
+		<div class="col s7">
+			Part Locations:
+		</div>
+		<div class="col s5">
+			<div class="switch right">
+				<label>
+					Current
+					<input v-model="allLocations"
+						id="all-locations"
+						name="all-locations"
+						type="checkbox">
+					<span class="lever"></span>
+					All
+				</label>
+			</div>
+		</div>
+	</div>
+	<div class="row locations">
+		<table class="col s12 responsive-table striped">
+	        <thead>
+				<tr>
+					<th data-field="warehouse">Warehouse</th>
+					<th v-if="true" data-field="serials">Serials</th>
+					<th data-field="location">
+						Bin Location
+						<div v-if="canEdit"
+							class="switch lock"
+						>
+							<label>
+								<i class="material-icons">lock</i>
+								<input v-model="edit.binLocation"
+									id="edit-binLocation"
+									name="edit-binLocation"
+									type="checkbox" />
+								<span class="lever"></span>
+								<i class="material-icons">lock_open</i>
+							</label>
+						</div>
+					</th>
+					<th data-field="quantity">Quantity</th>
+				</tr>
+	        </thead>
+	        <tbody>
+		        <template v-for="(location, location_index) in item.locations">
+		        	<template v-if="!_.isEmpty(location)">
+				        <tr :id="'location-' + location_index">
+							<td class="warehouse">{{ location.description }}</td>
+							<td class="serials">{{ !_.isEmpty(location.serials) ? _.map(location.serials, 'serial') : 'N/A' }}</td>
+							<td class="location">
+								<div v-if="edit.binLocation">
+									<input v-model="location.aisleBin"
+										:name="'edit-location-aisleBin-' + location_index"
+										type="text"
+										class="counter"
+										:length="30"
+										:maxlength="30"
+										:data-length="30" />
+								</div>
+								<div v-if="!edit.binLocation">
+									{{ (location.aisleBin) ? location.aisleBin : 'Not Specified' }}
+								</div>
+							</td>
+							<td class="quantity">{{ location.qty }}</td>
+				        </tr>
+				        <template v-for="(sublocation, sublocation_index) in location.sublocations">
+				        	<tr :id="'sublocation-' + sublocation_index">
+								<td class="warehouse">{{ sublocation.description }}</td>
+								<td class="serials">{{ !_.isEmpty(location.serials) ? _.map(location.serials, 'serial') : 'N/A' }}</td>
+								<td class="location">
+									<div v-if="edit.binLocation">
+										<input v-model="sublocation.aisleBin"
+											:name="'edit-sublocation-aisleBin-' + sublocation_index"
+											type="text"
+											class="counter"
+											:length="30"
+											:maxlength="30"
+											:data-length="30" />
+									</div>
+									<div v-if="!edit.binLocation">
+										{{ (sublocation.aisleBin) ? sublocation.aisleBin : 'Not Specified' }}
+									</div>
+								</td>
+								<td class="quantity">{{ sublocation.qty }}</td>
+					        </tr>
+				        </template>
+		        	</template>
+		        	<template v-if="_.isEmpty(location)">
+		        		 <tr :id="'location-' + location_index">
+							<td class="warehouse">N/A</td>
+							<td class="serials">N/A</td>
+							<td class="location">This item does not exist in this location.</td>
+							<td class="quantity">0</td>
+				        </tr>
+		        	</template>
+		        </template>
+	        </tbody>
+		</table>
+	</div>
+	<div class="row text-medium item-class">
+		<div class="col s7">
+			Class:
+		</div>
+		<div class="col s5 right-align">
+			{{ item.class }}
+		</div>
+	</div>
+	<div class="row text-medium item-category">
+		<div class="col s10">
+			Category:
+		</div>
+		<div class="col s2 right-align">
+			{{ item.category }}
+		</div>
+	</div>
+	<div class="row text-medium item-group">
+		<div class="col s10">
+			Group:
+		</div>
+		<div class="col s2 right-align">
+			{{ item.group }}
+		</div>
+	</div>
+	<div class="row text-medium separator item-type">
+		<div class="col s10">
+			Type:
+		</div>
+		<div class="col s2 right-align">
+			{{ item.itemType }}
+		</div>
+	</div>
+	<section class="details">
+		<div class="row text-large item-status">
+			<div class="col s10">
+				Status:
+			</div>
+			<div class="col s2 right-align">
+				{{ item.status }}
+			</div>
+		</div>
+		<div class="row text-large unit-cost">
+			<div class="col s10">
+				Unit Cost:
+			</div>
+			<div class="col s2 right-align">
+				{{ item.unitCost }}
+			</div>
+		</div>
+		<div class="row text-large unit-of-measure">
+			<div class="col s8 l10">
+				Unit of Measure:
+			</div>
+			<div class="col s4 l2 right-align">
+				{{ item.unitOfMeasure }}
+			</div>
+		</div>
+	</section>
+	<div class="row center-align">
+		<button
+			v-if="canEdit"
+			ref="submit"
+			@click="submit"
+			class="col s6 offset-s3 l6 offset-l3 btn-large waves-effect waves-light"
+			type="submit"
+			name="action"
+			:disabled="!canSubmit || loading"
+		>
+			Save Item
+		</button>
+	</div>
+</form>
